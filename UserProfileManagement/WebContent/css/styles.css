@@ -1,0 +1,11 @@
+.box {
+    background: white;
+    border-radius: 6px
+    transition-property: background, border-radius;
+    transition-duration: 1s;
+    transition-timing-function: linear;
+  }
+  .box:hover {
+    background: rgb(239, 226, 194);
+    border-radius: 60%;
+  }
