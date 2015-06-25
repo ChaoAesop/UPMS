@@ -10,5 +10,8 @@ import com.userprofile.bo.StatesBO;
  */
 public interface StatesDAO {
 
+	/**
+	 * @return
+	 */
 	public List<StatesBO> fetchAllStates();
 }

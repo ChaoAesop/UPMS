@@ -41,12 +41,12 @@ div {
 <table align="center" > 
 <form:form commandName="generateOTP" action="backFromGenerateOTP" name="generateOTPForm" >
 <tr><td>
-<form:input path="userId"/>
+<form:input path="userId" readonly="true"/>
 </td>
 </tr>
 
 <tr><td>
-<form:input path="OTPString"/>
+<form:input path="OTPString" readonly="true"/>
 </td>
 </tr>
 <tr>

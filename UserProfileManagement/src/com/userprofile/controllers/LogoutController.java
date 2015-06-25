@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -18,6 +19,8 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 @Controller
 @RequestMapping("/logout")
 public class LogoutController {
+	private static final Logger logger = Logger.getLogger(LogoutController.class);
+	
 	
 	@Autowired
 	RequestMappingHandlerAdapter requestMappingHandlerAdapter;
@@ -25,10 +28,8 @@ public class LogoutController {
 	@RequestMapping(method=RequestMethod.POST)
 	public String onLogoutUser(ModelMap map, HttpServletRequest servletRequest, HttpServletResponse response){
 		
-		/* Authentication auth = SecurityContextHolder.getContext().getAuthentication(); 
-		 SecurityContextLogoutHandler ctxLogOut = new SecurityContextLogoutHandler(); 
-		   ctxLogOut.logout(servletRequest, response, auth);
-*/
+		logger.debug("Invalidating the session");
+
 		HttpSession session = servletRequest.getSession(false);
 		if(session!=null){
 			session.invalidate();

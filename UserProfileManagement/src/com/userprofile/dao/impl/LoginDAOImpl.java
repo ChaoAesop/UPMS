@@ -5,15 +5,9 @@ package com.userprofile.dao.impl;
 
 import java.sql.Timestamp;
 import java.util.List;
-
-
-
-
-
-
-
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +22,8 @@ import com.userprofile.dao.LoginDAO;
  */
 @Repository("loginDAO")
 public class LoginDAOImpl extends AbstractDAO<LoginBO> implements LoginDAO {
-
+	
+	private static final Logger logger = Logger.getLogger(LoginDAOImpl.class);
 	/* (non-Javadoc)
 	 * @see com.userprofile.dao.LoginDAO#checkExistingUserID(java.lang.String)
 	 */
@@ -37,6 +32,7 @@ public class LoginDAOImpl extends AbstractDAO<LoginBO> implements LoginDAO {
 		
 		@SuppressWarnings("unchecked")
 		List<UserBO> queryResults = entityManager.createQuery( "from UserBO where user_id ='" + userID +"'" ).getResultList();
+		logger.debug("the list of objects from query... " + queryResults );
 		if(queryResults!=null && !queryResults.isEmpty()){
 			return true;
 		}
@@ -51,6 +47,7 @@ public class LoginDAOImpl extends AbstractDAO<LoginBO> implements LoginDAO {
 	@Transactional 
 	public void saveNewUserID(String userName, String otp) {
 
+		logger.info("Saving a new user Id and otp");
 		LoginBO bo = new LoginBO();
 		bo.setDateTimeStamp(new Timestamp(System.currentTimeMillis()));
 		bo.setOTPString(otp);
@@ -72,6 +69,8 @@ public class LoginDAOImpl extends AbstractDAO<LoginBO> implements LoginDAO {
 	public boolean validateLogin(String userID, String password, String otpString) {
 		
 		List<UserBO> bos = entityManager.createQuery( "from UserBO where user_id ='" + userID +"' and password = '"+ password + "'").getResultList();
+		
+		logger.info("validating the otp system");
 		boolean otpCheck = false;
 		List<LoginBO> loginBOs = entityManager.createQuery("from LoginBO where user_id = '"+userID + "' and OTPString = '" + otpString + "'" ).getResultList();
 		if(loginBOs!=null && !loginBOs.isEmpty()){
@@ -86,6 +85,7 @@ public class LoginDAOImpl extends AbstractDAO<LoginBO> implements LoginDAO {
 			}
 		}
 		
+		logger.info("Returning with all the boolean checks");
 		return ((bos!=null) && (!bos.isEmpty()) && otpCheck);
 	}
 
@@ -98,7 +98,7 @@ public class LoginDAOImpl extends AbstractDAO<LoginBO> implements LoginDAO {
 	@Override
 	@Transactional 
 	public void removeUserOTP(String userName) {
-			
+		logger.debug("Removing an OTP on successful login");	
 		LoginBO bo = new LoginBO();
 		bo.setUser_id(userName);
 		delete(bo);

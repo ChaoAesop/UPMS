@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -160,6 +161,38 @@ public class ProfileService {
 		return profileVO;
 	}
 
+	/**
+	 * @param json
+	 * @return
+	 */
+	public ProfileVO getSelectedAddressAndProfileID(String json) {
+		ProfileVO requestValue = new ProfileVO();
+		StringTokenizer stringTokenizer = new StringTokenizer(json, "&");
+		String[] tokenArr = new String[stringTokenizer.countTokens()];
+		int counter = 0;
+		while (stringTokenizer.hasMoreTokens()) {
+			tokenArr[counter] = stringTokenizer.nextToken();
+			counter++;
+		}
+
+		for (String string : tokenArr) {
+			int newCounter = 0;
+			StringTokenizer nextTokenizer = new StringTokenizer(string, "=");
+			String[] jsonArray = new String[nextTokenizer.countTokens()];
+			while (nextTokenizer.hasMoreTokens()) {
+				jsonArray[newCounter] = nextTokenizer.nextToken();
+				newCounter++;
+			}
+			if ("userID".equals(jsonArray[0])) {
+				requestValue.setUserID(jsonArray[1]);
+			} else if ("selectedAddress".equalsIgnoreCase(jsonArray[0])) {
+				requestValue.setSelectedAddress(Integer.valueOf(jsonArray[1]));
+			}
+		}
+		return requestValue;
+	}
+	
+	
 	public UserBO updateRegistrationWithAddress(UserBO bo) {
 		UserBO userBO = daoImpl.updateUserBOWithAddress(bo);
 		return userBO;

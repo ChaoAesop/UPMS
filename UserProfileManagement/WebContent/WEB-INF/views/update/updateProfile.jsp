@@ -127,9 +127,7 @@ function updateAddress(){
 }
 
 function deleteSelectedAddress(){
-	document.forms['updateForm'].method="get";
-	document.forms['updateForm'].action ="deleteSelectedAddress";
-	document.forms['updateForm'].submit(); 
+	onDeleteSelectedAddress();
 }
 
 function logoutUser(){
@@ -162,6 +160,32 @@ function onChangeSelectedAddress(){
 		        document.getElementById("city").value =o.city ;
 		        document.getElementById("country").value =o.country;
 		        document.getElementById("selectedState").value =o.state;
+		}
+	});
+}
+
+
+
+function onDeleteSelectedAddress(){
+	<% session.setAttribute("addressMap", request.getAttribute("addressMap")); %>
+	var selectedAddress = document.getElementById("selectedAddress").value;
+	var userID = document.getElementById("userID").value;
+	$.ajax({
+		url : 'checkDeleteSelectedAddress',
+		method : 'post',
+		ContentType : 'json',
+		data : {
+			'userID' : userID,
+			'selectedAddress' : selectedAddress
+		},
+		success : function(responseData) {
+		        if(responseData == "false"){
+		        	alert("Cannot Delete all the Addresses!")
+		        }else{
+		        	document.forms['updateForm'].method="get";
+		        	document.forms['updateForm'].action ="deleteSelectedAddress";
+		        	document.forms['updateForm'].submit(); 
+		        }
 		}
 	});
 }

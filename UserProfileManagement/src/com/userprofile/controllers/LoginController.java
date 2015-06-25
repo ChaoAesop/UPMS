@@ -35,8 +35,7 @@ import com.userprofile.vo.StatesVO;
 public class LoginController  {
 
 	private static final Logger logger = Logger.getLogger(LoginController.class);
-	
-	
+
 	@Autowired
 	LoginService loginService;
 
@@ -65,6 +64,7 @@ public class LoginController  {
 	@RequestMapping("/")
 	public String viewLogin(Model  model,
 			@ModelAttribute("loginvo") LoginVO loginVO) {
+		logger.debug("Base URL of the application context");
 		if (loginVO == null) {
 			loginVO = new LoginVO();
 		}
@@ -144,12 +144,13 @@ public class LoginController  {
 		
 		//delete otp on successful login
 		loginService.deleteOTPDetails(user.getName());
-		logger.debug("Go to Update Profile Page");
+		logger.info("Go to Update Profile Page");
 		return "/update/updateProfile";
 	}
 
 	@ModelAttribute("statesList")
 	public List<StatesVO> statesList() {
+		logger.info("getting the states to populate");
 		List<StatesVO> statesVOs = statesService.fetchAllStates();
 		return statesVOs;
 	}
@@ -159,6 +160,7 @@ public class LoginController  {
 	 * @param map
 	 */
 	private void createProfileVOForUser(LoginVO user, Model map) {
+		logger.info("Calling the service class for creating the profile vo object");
 		ProfileVO profileVO = profileService.createProfileForUpdate(user.getName(), map);
 		map.asMap().put("profileVO", profileVO);
 	}

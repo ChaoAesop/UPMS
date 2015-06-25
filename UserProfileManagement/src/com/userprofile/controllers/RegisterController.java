@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -29,6 +30,8 @@ import com.userprofile.vo.StatesVO;
 @Controller
 public class RegisterController {
 
+	private static final Logger logger = Logger.getLogger(RegisterController.class);
+	
 	@Autowired
 	StatesService statesService;
 
@@ -46,6 +49,7 @@ public class RegisterController {
 
 	@ModelAttribute("statesList")
 	public List<StatesVO> statesList() {
+		logger.debug("getting the cached list of states");
 		List<StatesVO> statesVOs = statesService.fetchAllStates();
 		return statesVOs;
 	}
@@ -53,7 +57,7 @@ public class RegisterController {
 	@RequestMapping("/showRegisterPage")
 	public ModelAndView showRegistrationPage(Map<String, Object> model,
 			@ModelAttribute("registration") RegistrationVO registrationVO) {
-
+		logger.info("Showing the register page");
 		if (registrationVO == null) {
 			registrationVO = new RegistrationVO();
 		}
@@ -68,6 +72,7 @@ public class RegisterController {
 			BindingResult bindingResult, ModelMap map) {
 
 		if (bindingResult.hasErrors()) {
+			logger.info("Showing the register page if errors");
 			ModelAndView modelAndView = new ModelAndView();
 			modelAndView.setViewName("/registration/newRegistration");
 			return modelAndView;
@@ -80,6 +85,7 @@ public class RegisterController {
 	}
 
 	private UserBO mapData(RegistrationVO registrationVO) {
+		logger.debug("Mapper method for addresses and the User");
 		AddressBO addressBO = new AddressBO();
 		addressBO.setState(registrationVO.getState());
 		addressBO.setCity(registrationVO.getCity());

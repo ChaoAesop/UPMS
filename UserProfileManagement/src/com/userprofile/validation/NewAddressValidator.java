@@ -13,7 +13,8 @@ import com.userprofile.vo.AddressVO;
 
 /**
  * @author analian
- *
+ *	
+ *	Validator class for adding new addresses page.
  */
 @Component
 public class NewAddressValidator implements Validator {
@@ -37,10 +38,10 @@ public class NewAddressValidator implements Validator {
 		   AddressVO addressVO = (AddressVO)target;
 		   try{
 				 if(!CommonValidatorUtil.validateNumber(String.valueOf(addressVO.getHouseNo()))){
-					 errorArguments.rejectValue("houseNumber", "not.a.number");
+					 errorArguments.rejectValue("houseNo", "not.a.number");
 				   }
 				}catch(Exception exception){
-					errorArguments.rejectValue("houseNumber", "not.a.number");
+					errorArguments.rejectValue("houseNo", "not.a.number");
 				}
 	}
 

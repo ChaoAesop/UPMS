@@ -6,11 +6,11 @@ package com.userprofile.controllers;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +44,7 @@ import com.userprofile.vo.StatesVO;
  */
 @Controller
 public class UpdateProfileController {
-
+	private static final Logger logger = Logger.getLogger(UpdateProfileController.class);
 	@Autowired
 	AddressService addressService;
 
@@ -124,10 +124,11 @@ public class UpdateProfileController {
 	@RequestMapping(value = "/deleteSelectedAddress", method = RequestMethod.GET)
 	public String deleteSelectedAddress(Model map,
 			@ModelAttribute("profileVO") @Validated ProfileVO profileVO,
-			BindingResult bindingResult, HttpServletRequest request) {
+			BindingResult bindingResult, HttpSession session) {
 		if(bindingResult.hasErrors()){
 			return "/update/updateProfile";
 		}
+			
 		// Get the selected address number
 		Integer selectedAddressNumber = profileVO.getSelectedAddress();
 
@@ -158,7 +159,7 @@ public class UpdateProfileController {
 		}
 		// Get the selected address number
 		Integer selectedAddressNumber = profileVO.getSelectedAddress();
-
+		logger.debug("Selected Address is :" + selectedAddressNumber);
 		profileVO = profileService.processProfileUpdate(map, profileVO, selectedAddressNumber);
 
 		profileVO = profileService.createProfileForUpdate(profileVO.getUserID(), map);
@@ -177,14 +178,14 @@ public class UpdateProfileController {
 	@RequestMapping("/backToProfilePage")
 	public String backToProfilePage(@ModelAttribute("addressForm") AddressVO addressVO,
 			BindingResult bindingResult,Model map){
-		ProfileVO profileVO = profileService.createProfileForUpdate(
-				addressVO.getProfileID(), map);
+		logger.info("Back to profile page ");
+		ProfileVO profileVO = profileService.createProfileForUpdate(addressVO.getProfileID(), map);
 		map.addAttribute("profileVO", profileVO);
 		return "/update/updateProfile";
 	}
 
 	/**
-	 * List of states
+	 * Cached List of states
 	 * 
 	 * @return
 	 */
@@ -197,54 +198,66 @@ public class UpdateProfileController {
 	 @RequestMapping(value = "/getChangedAddress", 
 	            method = RequestMethod.POST)
 	    @ResponseBody
-	    public String getAjaxRequestForSelectedAddress(@RequestBody String json,HttpSession  session) throws IOException {
-		 
+	    public String getAjaxRequestForSelectedAddress(@RequestBody String json,HttpSession session) throws IOException {
+		 logger.info("Inside ajax method to get changed address");
 			@SuppressWarnings("unchecked")
-			LinkedHashMap<Integer, AddressBO> map = (LinkedHashMap<Integer, AddressBO>) session
-					.getAttribute("addressMap");
+			LinkedHashMap<Integer, AddressBO> map = 
+			(LinkedHashMap<Integer, AddressBO>) session.getAttribute("addressMap");
 	
-			ProfileVO requestValue = new ProfileVO();
-			StringTokenizer stringTokenizer = new StringTokenizer(json, "&");
-			String[] tokenArr = new String[stringTokenizer.countTokens()];
-			int counter = 0;
-			while (stringTokenizer.hasMoreTokens()) {
-				tokenArr[counter] = stringTokenizer.nextToken();
-				counter++;
-			}
-	
-			for (String string : tokenArr) {
-				int newCounter = 0;
-				StringTokenizer nextTokenizer = new StringTokenizer(string, "=");
-				String[] jsonArray = new String[nextTokenizer.countTokens()];
-				while (nextTokenizer.hasMoreTokens()) {
-					jsonArray[newCounter] = nextTokenizer.nextToken();
-					newCounter++;
-				}
-				if ("userID".equals(jsonArray[0])) {
-					requestValue.setUserID(jsonArray[1]);
-				} else if ("selectedAddress".equalsIgnoreCase(jsonArray[0])) {
-					requestValue.setSelectedAddress(Integer.valueOf(jsonArray[1]));
-				}
-			}
+			ProfileVO requestValue = profileService.getSelectedAddressAndProfileID(json);
 	
 			AddressBO addressBO = null;
 			if (map.containsKey(requestValue.getSelectedAddress())) {
 				addressBO = map.get(requestValue.getSelectedAddress());
 			}
+			 logger.debug("the address bo to be returned as ajax response" + addressBO);
 			return toJson(addressBO);
 	 }
 
-	 private String toJson(AddressBO addressBO) {
+	 	/**
+	 	 * 	Checking if only 1 address remains in the address map before deleting.
+	 	 * @param json
+	 	 * @param session
+	 	 * @return
+	 	 * @throws IOException
+	 	 */
+	 	@RequestMapping(value = "/checkDeleteSelectedAddress", method = RequestMethod.POST)
+	    @ResponseBody
+	    public String getAjaxResponseForDeleteSelectedAddress(@RequestBody String json,
+	    										HttpSession session) throws IOException {
+	 		
+	 	logger.info("Inside the AJAX request method for delete selected address");	
+		@SuppressWarnings("unchecked")
+		LinkedHashMap<Integer, AddressBO> map = (LinkedHashMap<Integer, AddressBO>) session
+				.getAttribute("addressMap");
+
+		if (map != null) {
+
+			if (map.size() == 1) {
+				return "false";
+			}
+		} else {
+			return "false";
+		}
+		return "true";
+	}
+
+
+	 /**
+	  * 	Converts object to JSON String. 
+	 * @param addressBO
+	 * @return
+	 */
+	private String toJson(AddressBO addressBO) {
 	        ObjectMapper mapper = new ObjectMapper();
 	        try {
 	            String value = mapper.writeValueAsString(addressBO);
 	            return value;
 	        } catch (JsonProcessingException e) {
-	            e.printStackTrace();
+	            logger.error(e.getMessage());
 	            return null;
 	        } catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+	        	 logger.error(e.getMessage());
 			}
 			return null;
 	    }

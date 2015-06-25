@@ -5,6 +5,7 @@ package com.userprofile.controllers;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -24,7 +25,7 @@ import com.userprofile.vo.LoginVO;
  */
 @Controller
 public class GenerateOTPController {
-	
+	private static final Logger logger = Logger.getLogger(GenerateOTPController.class);
 	@Autowired
 	LoginService loginService;
 	
@@ -39,13 +40,13 @@ public class GenerateOTPController {
 	@RequestMapping(value="/backFromGenerateOTP")
 	public RedirectView  showLoginPage(ModelMap map, HttpServletRequest httpRequest, 
 			RedirectAttributes redirectAttributes, @ModelAttribute("generateOTP")GenerateOTPVO generateOTPVO){
-		
+		logger.info("Inside the OTP Controller... going back to login page");
 		LoginVO loginvo = new LoginVO();
 		loginvo.setName(generateOTPVO.getUserId());
 		loginvo.setOTPString(generateOTPVO.getOTPString());
 		
 		redirectAttributes.addFlashAttribute("loginvo",loginvo);
-		
+		logger.info("sending Redirect View to login");
 		return new RedirectView("/", true);
 	}
 }

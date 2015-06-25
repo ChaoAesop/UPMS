@@ -13,10 +13,29 @@ import com.userprofile.bo.AddressBO;
  */
 public interface AddressDAO {
 
+	/**
+	 * @param addressBO
+	 */
 	public void addNewAddress(AddressBO addressBO);
+	
+	/**
+	 * @return
+	 */
 	public List<AddressBO> fetchAllAddresses();
+	
+	/**
+	 * @param addressBO
+	 */
 	public void fetchAddress(AddressBO addressBO);
+	
+	/**
+	 * @param addressBO
+	 */
 	void updateAddress(AddressBO addressBO);
+	
+	/**
+	 * @param addressBO
+	 */
 	void deleteAddress(AddressBO addressBO);
 	
 }
